@@ -12,8 +12,8 @@ class _PageTambahDataState extends State<PageTambahData> {
   String nama = "";
   String tempatTanggalLahir = "";
   String alamat = "";
-  late String darah;
-  late String jk;
+  String darah = "";
+  String jk = "";
   String provinsi = "";
   String nomor = "";
   String merk = "";

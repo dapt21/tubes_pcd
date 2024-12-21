@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tubes_pcd_1301213561/classDataKendaraan.dart';
 
 class Data_Kendaraan extends StatefulWidget {
-  const Data_Kendaraan({super.key});
+  final DataKendaraan dataKendaraan;
+  const Data_Kendaraan({super.key, required this.dataKendaraan});
 
   @override
   State<Data_Kendaraan> createState() => _Data_KendaraanState();
@@ -23,30 +25,30 @@ class _Data_KendaraanState extends State<Data_Kendaraan> {
     return SingleChildScrollView(
       child: Column(
           children: [
-            text('Nomor Registrasi'),
-            text('----------------'),
+            text('Nomor Registrasi:'),
+            text(widget.dataKendaraan.nomor),
             text('Merk:'),
-            text('----------------'),
+            text(widget.dataKendaraan.merk),
             text('Tipe:'),
-            text('----------------'),
+            text(widget.dataKendaraan.tipe),
             text('Jenis:'),
-            text('----------------'),
+            text(widget.dataKendaraan.jenis),
             text('Model:'),
-            text('----------------'),
+            text(widget.dataKendaraan.model),
             text('Tahun Pembuatan:'),
-            text('----------------'),
+            text(widget.dataKendaraan.tahun),
             text('Isi Silinder/CC:'),
-            text('----------------'),
+            text(widget.dataKendaraan.cc),
             text('Nomor Rangka:'),
-            text('----------------'),
+            text(widget.dataKendaraan.noRangka),
             text('Nomor Mesin:'),
-            text('----------------'),
+            text(widget.dataKendaraan.noMesin),
             text('Warna:'),
-            text('----------------'),
+            text(widget.dataKendaraan.warna),
             text('Nomor BPKB'),
-            text('----------------'),
+            text(widget.dataKendaraan.noBpkb),
             text('Kode Lokasi'),
-            text('----------------'),
+            text(widget.dataKendaraan.kodeLokasi),
           ],
       ),
     );
