@@ -1,4 +1,5 @@
 import "dart:io";
+import "dart:typed_data";
 
 import "package:flutter/material.dart";
 import "package:flutter_tesseract_ocr/android_ios.dart";
@@ -8,6 +9,8 @@ import "package:tubes_pcd_1301213561/classDataKendaraan.dart";
 import "package:tubes_pcd_1301213561/data_kendaraan.dart";
 import "package:tubes_pcd_1301213561/data_pengendara.dart";
 import "package:tubes_pcd_1301213561/pageTambahData.dart";
+import "package:image/image.dart" as img;
+import 'dart:math' as Math;
 
 void main(){
   runApp(
@@ -27,7 +30,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  File ?img;
+  File ?imgPath;
   String platNomor = "";
   DataKendaraan dataSelected = new DataKendaraan(
     "", "", "",
@@ -45,18 +48,48 @@ class _HomePageState extends State<HomePage> {
       "Moge", "R1M", "2019", 
       "1000CC", "2390202", "923892", 
       "2902023", "Putih", "01"
-    )
+    ),
+    DataKendaraan(
+      "Unknow2", "Tempat, 20-20-2000", "Unknow2", 
+      "O", "Wanita", "Unknow2", 
+      "XX 1234 ABC", "Ngonda", "Motor", 
+      "Moge", "CBR1RR", "2019", 
+      "1000CC", "890122", "238903", 
+      "128901", "Merah", "20"
+    ),
   ];
 
   Future ambilGambar() async{
     final gambar = await ImagePicker().pickImage(source: ImageSource.gallery);
+    dataSelected = new DataKendaraan(
+      "", "", "",
+      "", "", "",
+      "", "", "",
+      "", "", "",
+      "", "", "",
+      "", "", "",
+    );
 
     if(gambar == null) return;
     setState(() {
-      img = File(gambar.path);
+      imgPath = File(gambar.path);
     });
 
-    platNomor = await FlutterTesseractOcr.extractText(img!.path, language: 'eng', args: {"psm": "4"});
+    int threshold = 128;
+    int kernelSize = 3;
+    img.Image image = img.decodeImage(File(imgPath!.path).readAsBytesSync())!;
+    img.Image thresholdedImage = applyThresholding(image, threshold);
+    img.Image dilatedImage = applyDilation(thresholdedImage, kernelSize);
+    img.Image erodedImage = applyErosion(thresholdedImage, kernelSize);
+
+    setState(() {
+      File(imgPath!.path).writeAsBytesSync(img.encodeJpg(thresholdedImage));
+      File(imgPath!.path).writeAsBytesSync(img.encodeJpg(dilatedImage));
+      File(imgPath!.path).writeAsBytesSync(img.encodeJpg(erodedImage));
+    });
+
+    platNomor = await FlutterTesseractOcr.extractText(imgPath!.path, language: 'eng', args: {"psm": "7", "oem": "3"});
+    print(platNomor);
     listData.forEach(
       (data){
         platNomor.split("\n").forEach((nomor){
@@ -69,6 +102,74 @@ class _HomePageState extends State<HomePage> {
       }
     );
     setState(() {});
+  }
+
+  img.Image applyThresholding(img.Image src, int threshold) {
+    for (int y = 0; y < src.height; y++) {
+      for (int x = 0; x < src.width; x++) {
+        var pixel = src.getPixel(x, y);
+        var luminance = img.getLuminance(pixel);
+        var newColor = luminance < threshold ? img.ColorRgb8(0, 0, 0) : img.ColorRgb8(255, 255, 255);
+        src.setPixel(x, y, newColor);
+      }
+    }
+    return src;
+  }
+
+  img.Image applyDilation(img.Image src, int kernelSize) {
+    final dilated = img.Image.from(src);
+
+    for (int y = 0; y < src.height; y++) {
+      for (int x = 0; x < src.width; x++) {
+        int maxPixel = 0;
+
+        for (int ky = -kernelSize ~/ 2; ky <= kernelSize ~/ 2; ky++) {
+          for (int kx = -kernelSize ~/ 2; kx <= kernelSize ~/ 2; kx++) {
+            final nx = x + kx;
+            final ny = y + ky;
+
+            if (nx >= 0 && nx < src.width && ny >= 0 && ny < src.height) {
+              final neighborPixel = src.getPixel(nx, ny);
+              final neighborValue = img.getLuminance(neighborPixel);
+              maxPixel = Math.max(maxPixel, neighborValue.toInt());
+            }
+          }
+        }
+
+        final newColor = img.ColorRgb8(maxPixel, maxPixel, maxPixel);
+        dilated.setPixel(x, y, newColor);
+      }
+    }
+
+    return dilated;
+  }
+
+  img.Image applyErosion(img.Image src, int kernelSize) {
+    final eroded = img.Image.from(src);
+
+    for (int y = 0; y < src.height; y++) {
+      for (int x = 0; x < src.width; x++) {
+        int minPixel = 255;
+
+        for (int ky = -kernelSize ~/ 2; ky <= kernelSize ~/ 2; ky++) {
+          for (int kx = -kernelSize ~/ 2; kx <= kernelSize ~/ 2; kx++) {
+            final nx = x + kx;
+            final ny = y + ky;
+
+            if (nx >= 0 && nx < src.width && ny >= 0 && ny < src.height) {
+              final neighborPixel = src.getPixel(nx, ny);
+              final neighborValue = img.getLuminance(neighborPixel);
+              minPixel = Math.min(minPixel, neighborValue.toInt()); // Gunakan math.min
+            }
+          }
+        }
+
+        final newColor = img.ColorRgb8(minPixel, minPixel, minPixel);
+        eroded.setPixel(x, y, newColor);
+      }
+    }
+
+    return eroded;
   }
 
   @override
@@ -106,8 +207,8 @@ class _HomePageState extends State<HomePage> {
                       flex: 7,
                       child: Container(
                         margin: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
-                        child: img != null 
-                        ? Image.file(img!)
+                        child: imgPath != null 
+                        ? Image.file(imgPath!)
                         : Icon(
                           Icons.image_outlined,
                           color: Colors.white,
