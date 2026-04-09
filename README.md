@@ -1,16 +1,14 @@
 # tubes_pcd_1301213561
 
-A new Flutter project.
+Tugas Besar Pengolahan Citra Digital, aplikasi License Plate Recognition. 
+Pada aplikasi ini, gambar di ambil menggunakan kamera hp, setelahnya akan di tampilkannya data pengendara (data dummy)
 
-## Getting Started
+Homepage
+<img width="1080" height="2400" alt="Homepage" src="https://github.com/user-attachments/assets/23a79c63-bd89-4e16-b66f-520e7dafd32e" />
 
-This project is a starting point for a Flutter application.
+Data Ditemukan
+<img width="1080" height="2400" alt="Ditemukan" src="https://github.com/user-attachments/assets/a2d6547e-4685-4472-894e-78dc58701cf0" />
 
-A few resources to get you started if this is your first Flutter project:
+Data Tidak Ditemukan
+<img width="1080" height="2400" alt="Tidak ditemukan" src="https://github.com/user-attachments/assets/4d47738f-3f84-418e-b554-ffab8118cbdf" />
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
